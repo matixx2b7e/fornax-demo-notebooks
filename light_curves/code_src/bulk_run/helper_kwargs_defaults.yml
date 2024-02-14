@@ -18,6 +18,7 @@ overwrite_existing_data: True
 bag:
   # ---- Sample options
   literature_names_all:
+    - csv
     - green
     - hon
     - lamassa
@@ -43,6 +44,13 @@ bag:
       paper_kwargs:
       - label: Cicco19
         paper_link: 2019A&A...627A..33D
+    get_csv_sample_kwargs:
+      csv_path: ""  # must be relative to cwd
+      label: ""
+      ra_colname: ra
+      dec_colname: dec
+      frame: icrs
+      unit: deg
   # Mission options
   mission_names_core:
     - gaia
