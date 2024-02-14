@@ -10,8 +10,8 @@ get_SDSS_sample_kwargs:
 consolidate_nearby_objects: True
 sample_filename: object_sample.ecsv
 overwrite_existing_sample: False
-# ---- Mission options
-mission: gaia
+# ---- archive options
+archive: gaia
 parquet_dataset_name: lightcurves.parquet
 overwrite_existing_data: True
 # ---- "bag" of default options that will be used if necessary.
@@ -51,14 +51,14 @@ bag:
       dec_colname: dec
       frame: icrs
       unit: deg
-  # Mission options
-  mission_names_core:
+  # archive options
+  archive_names_core:
     - gaia
     - heasarc
     - icecube
     - wise
     - ztf
-  mission_names_all:
+  archive_names_all:
     - gaia
     - heasarc
     - hcv
@@ -67,7 +67,7 @@ bag:
     - tess_kepler
     - wise
     - ztf
-  mission_kwargs_all:
+  archive_kwargs_all:
     gaia:
       search_radius: 1/3600  # deg
       verbose: 0

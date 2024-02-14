@@ -68,7 +68,7 @@ print_run_instructions(){
     echo "When this script is executed it launches a run consisting of multiple jobs:"
     echo "    - one for this script"
     echo "    - one for the function that builds the object sample"
-    echo "    - one for each call to a mission archive"
+    echo "    - one for each call to an archive"
     echo
     echo "---- Check Progress ----"
     echo "There are several ways to check the progress, listed below."
@@ -78,22 +78,22 @@ print_run_instructions(){
     echo "copy/paste this from the script's output), then using:"
     echo "    \$ cat \$logfile"
     echo "View this script's log for high-level job info and variables to copy/paste."
-    echo "View a mission's log to check its progress."
+    echo "View an archive's log to check its progress."
     echo
     echo "2: 'top'"
     echo "Use 'top' to monitor job activity (job PID's are in script output) and overall resource usage."
     echo
     echo "3: Output"
     echo "Once light curves are loaded, the data will be written to a parquet dataset with"
-    echo "one partition for each mission."
-    echo "To check which missions are done, set the 'parquet_dir' variable (copy/paste from script"
+    echo "one partition for each archive."
+    echo "To check which archives are done, set the 'parquet_dir' variable (copy/paste from script"
     echo "output), then use:"
     echo "    \$ ls -l \$parquet_dir"
-    echo "You will see a directory for each mission that is complete."
+    echo "You will see a directory for each archive that is complete."
     echo
     echo "---- Kill Jobs ----"
     echo "Kill one job:"
-    echo "If a particular mission encounters problems and you need to kill its job, kill the process."
+    echo "If a particular archive encounters problems and you need to kill its job, kill the process."
     echo "Set a 'pid' variable (copy/paste from script output), then use:"
     echo "    \$ kill \$pid"
     echo
@@ -116,7 +116,7 @@ print_usage(){
     echo "---- Usage Examples ----"
     echo "  - Basic run with default options:"
     echo "    \$ ./$(basename $0) -r my_run_id "
-    echo "  - Specify two papers to get sample objects from, and two missions to fetch light curves from:"
+    echo "  - Specify two papers to get sample objects from, and two archives to fetch light curves from:"
     echo "    \$ ./$(basename $0) -r run_two -l 'yang hon' -m 'gaia wise'"
     echo "  - Get ZTF light curves for 200 objects from the SDSS sample:"
     echo "    \$ ./$(basename $0) -r ztf -l SDSS -n 200 -m ztf"
@@ -130,7 +130,7 @@ print_usage(){
     echo "    -l ('yang SDSS') : Space-separated list of literature/paper names from which to build the object sample."
     echo "    -c (true) : whether to consolidate_nearby_objects"
     echo "    -g ('{"SDSS": {"num": 10}}') : json string representing dicts with keyword arguments."
-    echo "    -m ('gaia heasarc icecube wise ztf') : Space-separated list of missions from which to load light curves."
+    echo "    -m ('gaia heasarc icecube wise ztf') : Space-separated list of archives from which to load light curves."
     echo "    -o (object_sample.ecsv) : File name storing the object sample."
     echo "    -p (lightcurves.parquet) : Directory name storing the light-curve data."
     echo "Flags to be used without a value:"
@@ -143,7 +143,7 @@ print_usage(){
 }
 
 # ---- Set variable defaults.
-mission_names=(core)
+archive_names=(core)
 # yaml=helper_kwargs_defaults.yml
 extra_kwargs=()
 json_kwargs='{}'
@@ -156,7 +156,7 @@ while getopts r:m:j:e:hik flag; do
         r) run_id=$OPTARG
             extra_kwargs+=("run_id=${OPTARG}")
             ;;
-        m) mission_names=("$OPTARG");;
+        m) archive_names=("$OPTARG");;
         # y) yaml=$OPTARG;;
         j) json_kwargs=$OPTARG;;
         h) print_usage
@@ -172,15 +172,15 @@ while getopts r:m:j:e:hik flag; do
             ;;
       esac
 done
-# expand a mission_names shortcut value.
-if [ "${mission_names[0]}" == "all" ]; then
-    mission_names=($( python $HELPER_PY --build mission_names_all+l \
+# expand a archive_names shortcut value.
+if [ "${archive_names[0]}" == "all" ]; then
+    archive_names=($( python $HELPER_PY --build archive_names_all+l \
         --extra_kwargs ${extra_kwargs[@]} \
         --json_kwargs "$json_kwargs" ) \
     )
 fi
-if [ "${mission_names[0]}" == "core" ]; then
-    mission_names=($( python $HELPER_PY --build mission_names_core+l \
+if [ "${archive_names[0]}" == "core" ]; then
+    archive_names=($( python $HELPER_PY --build archive_names_core+l \
         --extra_kwargs ${extra_kwargs[@]} \
         --json_kwargs "$json_kwargs" ) \
     )
@@ -247,17 +247,17 @@ print_logs $logfile
 
 # ---- 2: Start the jobs to fetch the light curves in the background. Do not wait for them to finish.
 echo
-echo "Mission archive calls are starting."
-for mission in ${mission_names[@]}; do
-    logfile="${logsdir}/${mission}.log"
+echo "Archive calls are starting."
+for archive in ${archive_names[@]}; do
+    logfile="${logsdir}/${archive}.log"
     logfiles+=("$logfile")
     nohup python $HELPER_PY --build lightcurves \
         --extra_kwargs ${extra_kwargs[@]} \
         --json_kwargs "$json_kwargs" \
-        --mission $mission \
+        --archive $archive \
         > ${logfile} 2>&1 &
         # --kwargs_yaml $yaml \
-    echo "[pid=${!}] ${mission} started. logfile=${logfile}"
+    echo "[pid=${!}] ${archive} started. logfile=${logfile}"
 done
 
 # ---- 3: Print some instructions for the user, then exit.

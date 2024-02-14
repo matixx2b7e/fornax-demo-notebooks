@@ -115,20 +115,20 @@ def _build_sample(
 
 def _build_lightcurves(
     *,
-    mission,
-    mission_kwargs,
+    archive,
+    archive_kwargs,
     sample_filepath,
     parquet_dirpath,
     overwrite_existing_data,
     **extra_kwargs,
 ):
-    """Fetch data from the mission's archive and build light curves for objects in sample_filename.
+    """Fetch data from the archive and build light curves for objects in sample_filename.
 
     Parameters
     ----------
-    mission : str
-        Name of the mission to query for light curves. Case-insensitive.
-        (This will call the function `{mission}_get_lightcurve`.)
+    archive : str
+        Name of the archive to query for light curves. Case-insensitive.
+        (This will call the function `{archive}_get_lightcurve`.)
     base_dir : str
         Base directory for the sample file and parquet dataset.
     sample_filename : str
@@ -137,7 +137,7 @@ def _build_lightcurves(
         Name of the parquet dataset to write light curves to.
     overwrite_existing_data : bool
         Whether to overwrite an existing data file (True) or skip building light curves if a file
-        exists (False). Has no effect if there is no preexisting data file for this mission.
+        exists (False). Has no effect if there is no preexisting data file for this archive.
 
     Returns
     -------
@@ -145,8 +145,8 @@ def _build_lightcurves(
         Light curves. This function also writes the light curves to a Parquet file.
     """
 
-    _init_worker(job_name=f"build=lightcurves, mission={mission}")
-    parquet_filepath = parquet_dirpath / f"mission={mission}/part0.snappy.parquet"
+    _init_worker(job_name=f"build=lightcurves, archive={archive}")
+    parquet_filepath = parquet_dirpath / f"archive={archive}/part0.snappy.parquet"
 
     # if a sample file currently exists and the user elected not to overwrite, just return it
     if parquet_filepath.is_file() and not overwrite_existing_data:
@@ -159,51 +159,51 @@ def _build_lightcurves(
     # else load the sample and fetch the light curves
     sample_table = Table.read(sample_filepath, format="ascii.ecsv")
 
-    # Query the mission's archive and load light curves.
+    # Query the archive and load light curves.
     # [TODO] uniformize module and function names so that we can do this with getattr (like _build_sample)
-    # instead of checking for every mission individually.
-    if mission.lower() == "gaia":
+    # instead of checking for every archive individually.
+    if archive.lower() == "gaia":
         from gaia_functions import Gaia_get_lightcurve
 
-        lightcurve_df = Gaia_get_lightcurve(sample_table, **mission_kwargs)
+        lightcurve_df = Gaia_get_lightcurve(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "heasarc":
+    elif archive.lower() == "heasarc":
         from heasarc_functions import HEASARC_get_lightcurves
 
-        lightcurve_df = HEASARC_get_lightcurves(sample_table, **mission_kwargs)
+        lightcurve_df = HEASARC_get_lightcurves(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "hcv":
+    elif archive.lower() == "hcv":
         from HCV_functions import HCV_get_lightcurves
 
-        lightcurve_df = HCV_get_lightcurves(sample_table, **mission_kwargs)
+        lightcurve_df = HCV_get_lightcurves(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "icecube":
+    elif archive.lower() == "icecube":
         from icecube_functions import Icecube_get_lightcurve
 
-        lightcurve_df = Icecube_get_lightcurve(sample_table, **mission_kwargs)
+        lightcurve_df = Icecube_get_lightcurve(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "panstarrs":
+    elif archive.lower() == "panstarrs":
         from panstarrs import Panstarrs_get_lightcurves
 
-        lightcurve_df = Panstarrs_get_lightcurves(sample_table, **mission_kwargs)
+        lightcurve_df = Panstarrs_get_lightcurves(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "tess_kepler":
+    elif archive.lower() == "tess_kepler":
         from TESS_Kepler_functions import TESS_Kepler_get_lightcurves
 
-        lightcurve_df = TESS_Kepler_get_lightcurves(sample_table, **mission_kwargs)
+        lightcurve_df = TESS_Kepler_get_lightcurves(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "wise":
+    elif archive.lower() == "wise":
         from WISE_functions import WISE_get_lightcurves
 
-        lightcurve_df = WISE_get_lightcurves(sample_table, **mission_kwargs)
+        lightcurve_df = WISE_get_lightcurves(sample_table, **archive_kwargs)
 
-    elif mission.lower() == "ztf":
+    elif archive.lower() == "ztf":
         from ztf_functions import ZTF_get_lightcurve
 
-        lightcurve_df = ZTF_get_lightcurve(sample_table, **mission_kwargs)
+        lightcurve_df = ZTF_get_lightcurve(sample_table, **archive_kwargs)
 
     else:
-        raise ValueError(f"Unknown mission '{mission}'")
+        raise ValueError(f"Unknown archive '{archive}'")
 
     # save and return the light curve data
     parquet_filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -255,7 +255,7 @@ def _construct_kwargs_dict(*, kwargs_yaml=None, kwargs_dict=dict()):
 
     # update sets of kwargs
     my_kwargs_dict.update(_construct_sample_kwargs(my_kwargs_dict))
-    my_kwargs_dict.update(_construct_mission_kwargs(my_kwargs_dict))
+    my_kwargs_dict.update(_construct_archive_kwargs(my_kwargs_dict))
     my_kwargs_dict.update(_construct_path_kwargs(my_kwargs_dict))
 
     # sort by key and return
@@ -269,7 +269,7 @@ def _construct_kwargs_bag(kwargs_dict):
     kwargs_dict_bag = kwargs_dict.pop("bag", {})
 
     # there are two dicts that we need to descend into in order to update the defaults
-    for kwargs_all in ["get_sample_kwargs_all", "mission_kwargs_all"]:
+    for kwargs_all in ["get_sample_kwargs_all", "archive_kwargs_all"]:
         kwargs_dict_all = kwargs_dict_bag.pop(kwargs_all, {})
         for name, kwargs in kwargs_dict_all.items():
             if name in my_kwargs_bag[kwargs_all]:
@@ -299,31 +299,31 @@ def _construct_sample_kwargs(kwargs_dict):
     return my_sample_kwargs
 
 
-def _construct_mission_kwargs(kwargs_dict):
-    """Construct mission_kwargs from kwargs_dict plus defaults."""
-    mission = kwargs_dict.get("mission", "").lower()
+def _construct_archive_kwargs(kwargs_dict):
+    """Construct archive_kwargs from kwargs_dict plus defaults."""
+    archive = kwargs_dict.get("archive", "").lower()
 
-    # make a copy of default mission_kwargs
-    # default_mission_kwargs = {**KWARG_DEFAULTS_BAG["mission_kwargs_all"].get(mission, {})}
-    default_mission_kwargs = {**kwargs_dict["bag"]["mission_kwargs_all"].get(mission, {})}
+    # make a copy of default archive_kwargs
+    # default_archive_kwargs = {**KWARG_DEFAULTS_BAG["archive_kwargs_all"].get(archive, {})}
+    default_archive_kwargs = {**kwargs_dict["bag"]["archive_kwargs_all"].get(archive, {})}
     # update with passed-in values
-    default_mission_kwargs.update(kwargs_dict.get("bag", {}).get("mission_kwargs_all", {}).get(mission, {}))
-    default_mission_kwargs.update(kwargs_dict.get("mission_kwargs", {}))
+    default_archive_kwargs.update(kwargs_dict.get("bag", {}).get("archive_kwargs_all", {}).get(archive, {}))
+    default_archive_kwargs.update(kwargs_dict.get("archive_kwargs", {}))
 
     # convert radius to a float
-    mission_kwargs = {
+    archive_kwargs = {
         key: (float(Fraction(val)) if key.endswith("radius") else val)
-        for key, val in default_mission_kwargs.items()
+        for key, val in default_archive_kwargs.items()
     }
 
     # convert radius to an astropy Quantity if needed
-    if mission in ["wise", "ztf"]:
+    if archive in ["wise", "ztf"]:
         import astropy.units as u
 
-        radius, unit = tuple(["radius", u.arcsec] if mission == "wise" else ["match_radius", u.deg])
-        mission_kwargs[radius] = mission_kwargs[radius] * unit
+        radius, unit = tuple(["radius", u.arcsec] if archive == "wise" else ["match_radius", u.deg])
+        archive_kwargs[radius] = archive_kwargs[radius] * unit
 
-    return {"mission_kwargs": mission_kwargs}
+    return {"archive_kwargs": archive_kwargs}
 
 
 def _construct_path_kwargs(kwargs_dict):
@@ -392,10 +392,10 @@ def _parse_args(args_list):
         help="Kwargs to be added to kwargs_yaml. May also contain key 'json_kwargs', kwargs as a json string.",
     )
     parser.add_argument(
-        "--mission",
+        "--archive",
         type=str,
         default=None,
-        help="Mission name to query for light curves, to be added to extra_kwargs.",
+        help="Archive name to query for light curves, to be added to extra_kwargs.",
     )
     parser.add_argument(
         "--json_kwargs",
@@ -424,9 +424,9 @@ def _parse_extra_kwargs(args):
     # json_kwargs = args.extra_kwargs.pop('json_kwargs', r'{}')
     extra_kwargs.update(args.json_kwargs)
 
-    # add the mission, if provided
-    if args.mission:
-        extra_kwargs["mission"] = args.mission
+    # add the archive, if provided
+    if args.archive:
+        extra_kwargs["archive"] = args.archive
 
     return extra_kwargs
 

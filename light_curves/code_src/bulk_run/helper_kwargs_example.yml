@@ -15,6 +15,6 @@ get_papers_sample_kwargs:
     paper_link: 2019A&A...627A..33D
 # consolidate_nearby_objects: False
 bag:
-  mission_kwargs_all:
+  archive_kwargs_all:
     ztf:
       nworkers: 2
