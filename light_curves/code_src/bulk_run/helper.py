@@ -10,8 +10,7 @@ import yaml
 from astropy.table import Table
 
 BULK_RUN_DIR = Path(__file__).parent
-# print("mypy", BULK_RUN_DIR)
-sys.path.append(str(BULK_RUN_DIR.parent))
+sys.path.append(str(BULK_RUN_DIR.parent))  # put code_src dir on the path
 
 # Lazy-load all other imports to avoid depending on modules that will not actually be used.
 
@@ -39,7 +38,7 @@ def run(*, build, kwargs_yaml=None, **kwargs_dict):
     return _build_other(keyword=build, **my_kwargs_dict)
 
 
-# ---- build functions ----
+# ---- build functions ---- #
 
 
 def _build_sample(
@@ -109,8 +108,8 @@ def _build_sample(
 
     # save and return the Table
     sample_table.write(sample_filepath, format="ascii.ecsv", overwrite=True)
-    print(f"Object sample saved to: {sample_filepath}", flush=True)
-    print(_now())
+    print(f"Object sample saved to: {sample_filepath}")
+    print(_now(), flush=True)
     return sample_table
 
 
@@ -209,8 +208,8 @@ def _build_lightcurves(
     # save and return the light curve data
     parquet_filepath.parent.mkdir(parents=True, exist_ok=True)
     lightcurve_df.data.to_parquet(parquet_filepath)
-    print(f"Light curves saved to: {parquet_filepath}", flush=True)
-    print(_now())
+    print(f"Light curves saved to: {parquet_filepath}")
+    print(_now(), flush=True)
     return lightcurve_df
 
 
@@ -238,7 +237,7 @@ def _build_other(keyword, **kwargs_dict):
     return value
 
 
-# ---- utils ----
+# ---- construct kwargs ---- #
 
 
 def _construct_kwargs_dict(*, kwargs_yaml=None, kwargs_dict=dict()):
@@ -339,6 +338,9 @@ def _construct_path_kwargs(kwargs_dict):
     return my_kwargs_dict
 
 
+# ---- utils ---- #
+
+
 def _init_worker(job_name="worker"):
     """Run generic start-up tasks for a job."""
     # print the Process ID for the current worker so it can be killed if needed
@@ -346,10 +348,13 @@ def _init_worker(job_name="worker"):
 
 
 def _now():
+    # parse with:
+    # strtime = '2024/01/31 12:40:29 UTC'
+    # datetime.strptime(strtime, "%Y/%m/%d %H:%M:%S %Z")
     return datetime.now(timezone.utc).strftime("%Y/%m/%d %H:%M:%S %Z")
 
 
-# ---- helpers for __name__ == "__main__" ----
+# ---- helpers for __name__ == "__main__" ---- #
 
 
 def _run_main(args_list):
