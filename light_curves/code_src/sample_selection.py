@@ -317,7 +317,7 @@ def get_graham_sample(coords, labels, *, verbose=1):
         print('Changing Look AGN- Graham et al: ',len(CSQ))
 
 
-def get_TDE_sample(coords, labels, *, object_ids, verbose=1):
+def get_TDE_sample(coords, labels, *, object_ids=["ZTF18aabtxvd", "ZTF18aahqkbt"], verbose=1):
     """ To find and append coordinates of objects with only ZTF obj name
 
     Parameters
@@ -343,7 +343,7 @@ def get_TDE_sample(coords, labels, *, object_ids, verbose=1):
 
 #SDSS QSO sample of any desired number
 #These are "normal" QSOs to use in the classifier
-def get_SDSS_sample(coords, labels, *, num, verbose=1):
+def get_SDSS_sample(coords, labels, *, num=10, verbose=1):
     """Automatically grabs SDSS quasar sample.
 
     Parameters
@@ -377,7 +377,7 @@ def get_SDSS_sample(coords, labels, *, num, verbose=1):
         print('SDSS Quasar: '+str(num))
 
 
-def get_paper_sample(coords, labels, *, paper_link, label, verbose=1):
+def get_paper_sample(coords, labels, *, paper_link="2019A&A...627A..33D", label="Cicco19", verbose=1):
     """Looks for RA,DEC in a paper using Ned query and returns list of coords and lables
 
     Parameters
@@ -403,7 +403,7 @@ def get_paper_sample(coords, labels, *, paper_link, label, verbose=1):
         print("number of sources added from "+str(label)+" :"+str(len(paper_coords)))
 
 
-def get_papers_sample(coords, labels, *, paper_kwargs):
+def get_papers_sample(coords, labels, *, paper_kwargs=[dict(),]):
     """Wrapper for get_paper_sample. Calls get_paper_sample for each item in paper_kwargs.
 
     Parameters
