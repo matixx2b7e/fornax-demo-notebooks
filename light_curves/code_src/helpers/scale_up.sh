@@ -84,6 +84,65 @@ monitor_top(){
     done
 }
 
+print_help(){
+    echo "---- $(basename $0) ----"
+    echo
+    echo "Use this script to launch and monitor a large-scale \"run\" to load a sample of target objects"
+    echo "from the literature and collect their multi-wavelength light curves from various archives."
+    echo "For complete usage information, see the scale_up notebook tutorial."
+    echo
+    echo "FLAG OPTIONS"
+    echo "------------"
+    echo
+    echo "Required flags:"
+    echo
+    echo "    -r 'run_id'"
+    echo "        ID for the run. No spaces or special characters."
+    echo "        Determines the name of the output directory."
+    echo "        Can be used in multiple script calls to manage the same run."
+    echo
+    echo "Flags used to launch a run (optional):"
+    echo
+    echo "    -a 'archive names'"
+    echo "        Space-separated list of archive names like 'Gaia IceCube WISE' (case insensitive),"
+    echo "        or a shortcut ('core' or 'all')."
+    echo "        The get_<name>_lightcurves function will be called once for each name."
+    echo "        If this flag is not supplied, no light-curve data will be retrieved."
+    echo
+    echo "    -d 'key=value'"
+    echo "        Any top-level key/value pair in the python kwargs_dict where the"
+    echo "        value is a basic type (e.g., bool or string, but not list or dict)."
+    echo "        Repeat the flag to send multiple kwargs."
+    echo "        For more flexibility, use the -j flag and/or store the kwargs_dict as a"
+    echo "        yaml file and use: -d 'use_yaml=true'. Order of precedence is dict, json, yaml."
+    echo
+    echo "    -j 'json string'"
+    echo "        The python kwargs_dict as a json string. An example usage is:"
+    echo "        -j '{"get_samples": {"SDSS": {"num": 50}}, "archives": {"ZTF": {"nworkers": 8}}}'"
+    echo "        The string can be created in python by first constructing the dictionary and then using:"
+    echo "            >>> import json"
+    echo "            >>> json.dumps(kwargs_dict)"
+    echo "        Copy the output, including the surrounding single quotes ('), and paste it as the flag value."
+    echo
+    echo "Other flags (optional):"
+    echo "    These must be used independently and cannot be combined with any other optional flag."
+    echo
+    echo "    -t 'nsleep'"
+    echo "        Use this flag to monitor top after launching a run. This will filter for PIDs"
+    echo "        launched by 'run_id' and save the output to a log file once every 'nsleep' interval."
+    echo "        'nsleep' will be passed to the sleep command, so values like '10s' and '30m' are allowed."
+    echo "        The python helper can load the output."
+    echo "        This option is only available on Linux machines."
+    echo
+    echo "    -k (kill)"
+    echo "        Use this flag to kill all processes that were started using the given 'run_id'."
+    echo "        This option is only available on Linux machines."
+    echo
+    echo "    -h (help)"
+    echo "        Print this help message."
+    echo
+}
+
 print_help_invalid_option(){
     echo "For help, use -h."
 }
@@ -93,52 +152,6 @@ print_logs(){
     echo "-- ${logfile}:"
     cat $logfile
     echo "--"
-}
-
-print_help(){
-    echo "---- $(basename $0) ----"
-    echo
-    echo "For complete usage information, see the scale_up notebook tutorial."
-    echo
-    echo "FLAG OPTIONS"
-    echo "------------"
-    echo
-    echo "    -r 'run_id' (required)"
-    echo "        ID for the run. No spaces or special characters."
-    echo "        Determines the name of the output directory."
-    echo "        Can be used in subsequent script calls to manage the run."
-    echo
-    echo "    -a 'archive names' (optional)"
-    echo "        Space-separated list of archive names like 'Gaia IceCube WISE' (case insensitive),"
-    echo "        or a shortcut ('core' or 'all')."
-    echo "        The get_<name>_lightcurves function will be called once for each name."
-    echo "        If this flag is not supplied, no light-curve data will be retrieved."
-    echo
-    echo "    -d 'key=value' (optional)"
-    echo "        Any top-level key/value pair in the python kwargs_dict where the"
-    echo "        value is a basic type (e.g., bool or string, but not list or dict)."
-    echo "        Repeat the flag to send multiple kwargs."
-    echo "        For more flexibility, either use the -j flag or store the kwargs_dict as a"
-    echo "        yaml file and use: -d 'use_yaml=true'. Order of precedence is dict, json, yaml."
-    echo
-    echo "    -j 'json string' (optional)"
-    echo "        The python kwargs_dict as a json string. An example usage is:"
-    echo "        -j '{"get_samples": {"SDSS": {"num": 50}}, "archives": {"ZTF": {"nworkers": 8}}}'"
-    echo
-    echo "    -t 'nsleep' (optional)"
-    echo "        Use this flag to monitor top after launching a run. This will filter for PIDs"
-    echo "        launched by 'run_id' and save the output to a log file once every 'nsleep' interval."
-    echo "        'nsleep' will be passed to the sleep command, so values like '10s' and '30m' are allowed."
-    echo "        The python helper can load the output."
-    echo "        This option is only available on Linux machines."
-    echo
-    echo "    -k (kill, optional)"
-    echo "        Use this flag to kill all processes that were started using the given 'run_id'."
-    echo "        This option is only available on Linux machines."
-    echo
-    echo "    -h (help, optional)"
-    echo "        Print this help message."
-    echo
 }
 
 # ---- Set variable defaults.
