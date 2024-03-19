@@ -499,7 +499,7 @@ $ bash code_src/helpers/scale_up.sh -r "$yaml_run_id" -d "use_yaml=true" -a "cor
 
 Scaling up to large sample sizes brings new challenges.
 Even if things go smoothly, each function call may need to use a lot more resources like CPU, RAM, and bandwidth, and may take much longer to complete.
-We'll want to run some functions in parallel to save time, but that will mean the calls must also compete with each other for resources.
+Also, we'll want to run some functions in parallel to save time overall, but that will mean they must compete with each other for resources.
 
 These issues are complicated by the fact that different combinations of samples and archive calls can trigger different problems.
 Inefficiencies in any part of the process -- our code, archive backends, etc. -- which may have been negligible at small scale can balloon into significant hurdles.
@@ -522,9 +522,9 @@ We need to be able to monitor the run's resource usage and capture print stateme
 Even with parallelization, gathering light curves for a large sample of objects is likely to take a few hours at least.
 So we want to automate the monitoring tasks as much as possible.
 
-If the run fails, we'd like to be able to restart it without having to re-do any function calls that were previously successful.
-To accomplish this, the functions' inputs and outputs need to be less tightly coupled than they are in the light_curve_generator notebook.
-For example, we want each function to save its results to a file, and we want the archive calls to read their `sample_table` input from a file.
+If the run fails, we'd like to be able to restart it without having to redo steps that were previously successful.
+To accomplish this, the inputs and outputs need to be less tightly coupled than they are in the light_curve_generator notebook.
+Specifically, we want to save the sample and light curve data to file as soon as each piece is collected, and we want the archive functions to be able to get the `sample_table` input from file.
 
 The python helper and bash script were specifically designed to fulfill many of these wants and needs.
 
@@ -556,4 +556,4 @@ To execute a run:
 
 **Authors**: Troy Raen, Jessica Krick, Brigitta Sipőcz, Shoubaneh Hemmati, Andreas Faisst, David Shupe
 
-**Updated On**: 2024-03-12
+**Updated On**: 2024-03-19
