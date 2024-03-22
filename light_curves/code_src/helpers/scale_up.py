@@ -163,7 +163,10 @@ def _build_lightcurves(*, archive, archive_kwargs, sample_file, parquet_dir, ove
     # Query the archive and load light curves.
     lightcurve_df = get_lightcurves_fnc(sample_table, **archive_kwargs)
 
-    # Save and return the light curve data.
+    # Save and return the light curve data or tell the user there is no data.
+    if len(lightcurve_df.data.index) == 0:
+        print(f"No light curve data was returned from {archive}.")
+        return
     parquet_filepath.parent.mkdir(parents=True, exist_ok=True)
     lightcurve_df.data.to_parquet(parquet_filepath)
     print(f"Light curves saved to:\n\tparquet_dir={parquet_dir}\n\tfile={parquet_filepath.relative_to(parquet_dir)}")
