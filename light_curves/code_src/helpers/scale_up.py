@@ -17,7 +17,7 @@ sys.path.append(str(HELPERS_DIR.parent))  # put code_src dir on the path
 
 ARCHIVE_NAMES = {
     "all": ["Gaia", "HCV", "HEASARC", "IceCube", "PanSTARRS", "TESS_Kepler", "WISE", "ZTF"],
-    "core": ["Gaia", "HEASARC", "IceCube", "WISE", "ZTF"],
+    "scaled": ["Gaia", "HEASARC", "IceCube", "WISE", "ZTF"],  # these are expected to run successfully at scale
 }
 DEFAULTS = {
     "run_id": "my-run",
@@ -184,7 +184,7 @@ def _build_other(keyword, **kwargs_dict):
     my_keyword = keyword.removesuffix("+l").removesuffix("+")
 
     # get the keyword value
-    if my_keyword in ["archive_names_all", "archive_names_core"]:
+    if my_keyword in ["archive_names_all", "archive_names_scaled"]:
         value = ARCHIVE_NAMES[my_keyword.split("_")[-1]]
     else:
         value = kwargs_dict[my_keyword]
@@ -272,7 +272,12 @@ def _init_worker(job_name="worker"):
 
 
 def _now():
-    # parse this datetime using: dateutil.parser.parse(_now())
+    """Return datetime.now as a string with format '%Y/%m/%d %H:%M:%S %Z'.
+
+    This can be parsed using:
+    >>> import dateutil
+    >>> now = dateutil.parser.parse(_now())
+    """
     date_format = "%Y/%m/%d %H:%M:%S %Z"
     return datetime.now(timezone.utc).strftime(date_format)
 
