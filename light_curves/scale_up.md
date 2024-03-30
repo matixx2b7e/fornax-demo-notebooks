@@ -41,7 +41,7 @@ Notebook sections are:
 - "Example 1" shows how to launch a large-scale run using the bash script, monitor its progress automatically, and diagnose a problem (out of RAM).
 - "Example 2" shows how to parallelize the example from the light_curve_generator notebook using the helper and python's `multiprocessing` library.
 - "Example 3" details the helper parameter options and how to use them in python and bash.
-- "Appendix" contains background information including a discussion of the challenges, needs, and wants encountered when scaling up this code, and general advice for the user.
+- "Appendix" contains background information including a discussion of the challenges, needs, and wants encountered when scaling up this code, and general advice for the user which can be applied to other use cases.
 
 **Many of the bash commands below are shown in non-executable cells because they are not intended to be run in this notebook.**
 Bash commands that are not executed below begin with the symbol `$ `, and those that are executed begin with `!`.
