@@ -357,7 +357,7 @@ archive_names = helpers.scale_up.ARCHIVE_NAMES["all"]  # predefined list ("core"
 archive_names
 ```
 
-Collect the sample and write it as a .ecsv file.
+In the next cell, we collect the sample and write it as a .ecsv file.
 Then query the archives in parallel using a `multiprocessing.Pool` and write the light curve data as .parquet files.
 
 ```{code-cell}
@@ -505,7 +505,7 @@ These issues are complicated by the fact that different combinations of samples 
 Inefficiencies in any part of the process -- our code, archive backends, etc. -- which may have been negligible at small scale can balloon into significant hurdles.
 
 Problems can manifest in different ways.
-For example, progress may to slow to a crawl, or it may run smoothly for several hours and then crash suddenly.
+For example, progress may slow to a crawl, or it may run smoothly for several hours and then crash suddenly.
 If the job is running in the background, print statements and error messages may get lost and never be displayed for the user if they are not redirected to a file.
 
 +++
@@ -514,11 +514,11 @@ If the job is running in the background, print statements and error messages may
 
 +++
 
-The main goal is to speed up the run, so we want to look for opportunities to parallelize.
+The main goal is to speed up total time it takes to run the full code, so we want to look for opportunities to parallelize.
 We can group the light_curve_generator code into two main steps: (1) gather the target object sample; then (2) generate light curves by querying the archives and standardizing the returned data.
 All of the archive calls have to wait for the sample to be available before starting, but then they can run independently in parallel.
 
-We need to be able to monitor the run's resource usage and capture print statements, error messages, etc. to log files in order to understand if/when something goes wrong.
+It is useful to be able to monitor the run's resource usage and capture print statements, error messages, etc. to log files in order to understand if/when something goes wrong.
 Even with parallelization, gathering light curves for a large sample of objects is likely to take a few hours at least.
 So we want to automate the monitoring tasks as much as possible.
 
@@ -530,7 +530,7 @@ The python helper and bash script were specifically designed to fulfill many of 
 
 +++
 
-### What the user should do
+### Advice for the user
 
 +++
 
