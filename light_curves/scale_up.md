@@ -532,6 +532,7 @@ If the job is running in the background, print statements and error messages may
 The main goal is to reduce the total time it takes to run the full code, so we want to look for opportunities to parallelize.
 We can group the light_curve_generator code into two main steps: (1) gather the target object sample; then (2) generate light curves by querying the archives and standardizing the returned data.
 All of the archive calls have to wait for the sample to be available before starting, but then they can run independently in parallel.
+This is fortunate, since gathering the sample does not take long compared to the archive calls.
 
 It is useful to be able to monitor the run's resource usage and capture print statements, error messages, etc. to log files in order to understand if/when something goes wrong.
 Even with parallelization, gathering light curves for a large sample of objects is likely to take a few hours at least.
@@ -571,4 +572,4 @@ To execute a run:
 
 **Authors**: Troy Raen, Jessica Krick, Brigitta Sipőcz, Shoubaneh Hemmati, Andreas Faisst, David Shupe
 
-**Updated On**: 2024-03-29
+**Updated On**: 2024-03-30
